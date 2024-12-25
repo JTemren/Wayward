@@ -37,7 +37,6 @@ public class PlayerController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         playerRigidBody2D = GetComponent<Rigidbody2D>();
-
     }
 
     // Start is called before the first frame update
@@ -50,6 +49,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         Flip();
+        
         playerRigidBody2D.velocity = moveInput * moveSpeed;
        
         
@@ -63,7 +63,24 @@ public class PlayerController : MonoBehaviour
     private int GetState()
     {
         if (Time.time < _lockedTill) return _currentState;
-        return moveInput.x == 0 ? IdleRight : MoveRight;
+
+        if (moveInput.y == 0) 
+            return moveInput.x == 0 ? IdleRight : MoveRight;
+        switch (moveInput.y)
+        {
+            case >= 0:
+                return moveInput.y >= 0 ? MoveUp : IdleUp;
+            case <= 0:
+                return moveInput.y <= 0 ?  MoveDown: IdleDown;
+        }
+
+        return -1;
+
+        int LockState(int s, float t)
+        {
+            _lockedTill = Time.time + t;
+            return s;
+        }
     }
 
     // FixedUpdate is called 50 times a second
@@ -81,6 +98,11 @@ public class PlayerController : MonoBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
+    }
+
+    public void Roll(InputAction.CallbackContext context)
+    {
+        
     }
     private void Flip()
     {
